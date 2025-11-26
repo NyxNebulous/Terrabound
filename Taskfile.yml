@@ -1,0 +1,67 @@
+version: "3"
+
+vars:
+  BUILDER_IMAGE: heroiclabs/nakama-pluginbuilder:3.34.1
+  COMPOSE_FILE: infra/docker-compose.yml
+  ROOT: "{{.TASKFILE_DIR}}"
+
+silent: true
+
+tasks:
+  default:
+    cmds:
+      - task --list
+
+  backend:build:
+    desc: Build the Nakama Go plugin with strict version matching + cached deps
+    cmds:
+      - mkdir -p backend/build
+
+      - docker volume create terrabound_gomod >/dev/null 2>&1 || true
+      - docker volume create terrabound_gobuild >/dev/null 2>&1 || true
+
+      - docker run --rm -v "{{.ROOT}}/backend":/workspace -v terrabound_gomod:/go/pkg/mod -v terrabound_gobuild:/root/.cache/go-build -w /workspace {{.BUILDER_IMAGE}} build --trimpath --buildmode=plugin -o build/backend.so ./cmd/module
+
+  backend:watch:
+    desc: "Watch Go files & auto-rebuild + restart Nakama (requires reflex)"
+    cmds:
+      - reflex -G vendor/ -r '\.go$' -- sh -c 'task backend:build && docker compose -f {{.COMPOSE_FILE}} restart nakama'
+
+  backend:test:
+    desc: Run Go tests for pure domain logic
+    dir: backend
+    cmds:
+      - go test ./...
+
+  stack:up:
+    desc: Start Nakama + Postgres stack (foreground)
+    cmds:
+      - task backend:build
+      - docker compose -f {{.COMPOSE_FILE}} up
+
+  stack:up-detached:
+    desc: Start services in background
+    cmds:
+      - task backend:build
+      - docker compose -f {{.COMPOSE_FILE}} up -d
+
+  stack:down:
+    desc: Stop and remove services
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} down -v
+
+  stack:logs:
+    desc: Tail Nakama logs
+    cmds:
+      - docker compose -f {{.COMPOSE_FILE}} logs -f nakama
+
+  stack:psql:
+    desc: Open a psql shell into Postgres
+    cmds:
+      - docker exec -it terrabound_db psql -U postgres -d nakama
+
+  tidy:
+    desc: Clean go.mod & go.sum
+    dir: backend
+    cmds:
+      - go mod tidy

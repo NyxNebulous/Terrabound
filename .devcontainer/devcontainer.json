@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "name": "Terrabound Dev Environment",
+  "image": "mcr.microsoft.com/devcontainers/go:1.25",
+  "features": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
+      // FIX: Set moby to false to avoid compatibility issues on Debian 'trixie' base image
+      "moby": false
+    }
+  },
+  "postCreateCommand": "sudo chown -R vscode /go/pkg/ && go install github.com/go-task/task/v3/cmd/task@latest && go install github.com/cespare/reflex@latest",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "golang.go",
+        "ms-azuretools.vscode-docker",
+        "task.vscode-task"
+      ],
+      "settings": {
+        "go.toolsManagement.checkForUpdates": "local",
+        "go.useLanguageServer": true,
+        "go.gopath": "/go",
+        "go.goroot": "/usr/local/go"
+      }
+    }
+  },
+  "remoteUser": "vscode",
+  "forwardPorts": [7349, 7350, 7351, 5432],
+  "portsAttributes": {
+    "7349": {
+      "label": "Nakama gRPC",
+      "onAutoForward": "notify"
+    },
+    "7350": {
+      "label": "Nakama HTTP",
+      "onAutoForward": "openPreview"
+    },
+    "7351": {
+      "label": "Nakama Console",
+      "onAutoForward": "notify"
+    },
+    "5432": {
+      "label": "PostgreSQL",
+      "onAutoForward": "ignore"
+    }
+  },
+  "mounts": [
+    "source=terrabound-go-modules,target=/go/pkg/mod,type=volume"
+  ]
+}

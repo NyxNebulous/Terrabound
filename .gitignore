@@ -1,0 +1,38 @@
+# Go build artifacts
+*.so
+*.out
+*.test
+backend/build/
+coverage/
+
+# Taskfile cache
+.task/
+
+# IDE / tooling
+.vscode/
+.idea/
+.DS_Store
+*.swp
+
+# Devcontainer runtime data
+.devcontainer/*.log
+
+# Unity generated files
+unity/[Ll]ibrary/
+unity/[Tt]emp/
+unity/[Oo]bj/
+unity/[Bb]uilds?/
+unity/[Ll]ogs/
+unity/[Mm]emoryCaptures/
+unity/*.csproj
+unity/*.sln
+unity/*.user
+unity/*.pidb
+unity/*.userprefs
+
+# Docker volumes
+volumes/
+
+.directory
+
+backend/.env
