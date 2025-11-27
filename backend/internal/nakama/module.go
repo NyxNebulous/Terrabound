@@ -7,7 +7,7 @@ import (
 
 	"github.com/heroiclabs/nakama-common/runtime"
 
-	"github.com/delta/terrabound/backend/internal/oauth"
+	"github.com/delta/terrabound/backend/internal/dauth"
 )
 
 const (
@@ -18,11 +18,11 @@ const (
 func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, initializer runtime.Initializer) error {
 	start := time.Now()
 
-	// Build OAuth repository and config
-	oauthRepo := oauth.NewSQLOAuthRepository(db)
-	oauthConf := oauth.NewOAuthConfig()
+	dauthRepo := dauth.NewSQLDAuthRepository(db)
+	dauthConf := dauth.NewDAuthConfig()
+	dauthService := dauth.NewDAuthService(dauthConf)
 
-	rpcHandlers := NewRPCHandlers(oauthRepo, oauthConf)
+	rpcHandlers := NewRPCHandlers(dauthRepo, dauthConf, *dauthService)
 
 	if err := rpcHandlers.RegisterOAuthRPCs(initializer, logger); err != nil {
 		return err

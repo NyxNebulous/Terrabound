@@ -13,11 +13,17 @@
 
 ```
 .
-├── backend/                 # Go module compiled into backend.so
+├── backend/                 # Go module compiled into backend.so (build produces backend/build/backend.so)
 │   ├── cmd/module/          # Nakama entrypoint delegating to internal packages
-│   ├── internal/game/       # Pure domain logic (deterministic + unit-testable)
-│   └── internal/nakama/     # Thin integration layer (RPCs, matches, hooks)
-├── unity/                   # Unity scaffolding + networking sample script
+│   ├── build/               # Output: compiled plugin
+│   ├── go.mod               # Module definition for the backend
+│   └── internal/            # Internal packages
+│       ├── config/          # Backend configuration helpers (oauth, env)
+│       ├── constants/       # Shared constants and error definitions
+│       ├── game/            # Pure domain logic (deterministic + unit-testable)
+│       ├── nakama/          # Nakama integration (RPCs, matches, hooks)
+│       └── oauth/           # OAuth config/models/repository for external auth flows
+├── unity/                   # Unity project and client-side scripts
 │   ├── Assets/Scripts/      # Unity scripts (Networking, GameLogic, UI)
 │   └── README.md            # Unity-specific notes
 ├── infra/                   # Docker Compose, Nakama config, Postgres init script
@@ -30,9 +36,9 @@
 └── README.md                # You're here
 ```
 
-- **backend/**: Standalone Go module (go.mod) with pure game logic in `internal/game/` and Nakama glue in `internal/nakama/`. Built as a `.so` plugin.
-- **unity/**: Unity project structure with scripts for connecting to Nakama.
-- **infra/**: Local dev environment via Docker Compose. Nakama runs the Go plugin, Postgres stores data.
+- **backend/**: Standalone Go module (go.mod) with pure game logic under `internal/game/` and integration/glue code under `internal/nakama/` plus supporting packages (`config`, `constants`, `oauth`). Built as a `.so` plugin consumed by Nakama.
+- **unity/**: Unity project structure with scripts for connecting to Nakama and client-side logic.
+- **infra/**: Local dev environment via Docker Compose. Nakama loads the Go plugin, Postgres stores data.
 - **Taskfile.yml**: Task runner for all workflows (build, run, watch, logs, etc.).
 
 ## Tooling Philosophy
@@ -147,8 +153,8 @@ unity/Assets/Scripts/
 
 ## Devcontainer
 
-Open the folder in VS Code and select "Reopen in Container". The container has:
-- Go 1.21
+- Open the folder in VS Code and select "Reopen in Container". The container has:
+- Go 1.25
 - Docker CLI
 - Task + reflex
 - Extensions: Go, Makefile Tools, Docker

@@ -4,19 +4,21 @@ import (
 	"github.com/heroiclabs/nakama-common/runtime"
 	"golang.org/x/oauth2"
 
-	"github.com/delta/terrabound/backend/internal/oauth"
+	"github.com/delta/terrabound/backend/internal/dauth"
 )
 
 type RPCHandlers struct {
-	oauthConf *oauth2.Config
-	oauthRepo oauth.OAuthRepository
+	dauthConf    *oauth2.Config
+	dauthRepo    dauth.DAuthRepository
+	dauthService dauth.DAuthService
 }
 
 // NewRPCHandlers constructs handlers with the minimal dependencies required.
-func NewRPCHandlers(repo oauth.OAuthRepository, conf *oauth2.Config) *RPCHandlers {
+func NewRPCHandlers(repo dauth.DAuthRepository, conf *oauth2.Config, dauthService dauth.DAuthService) *RPCHandlers {
 	return &RPCHandlers{
-		oauthRepo: repo,
-		oauthConf: conf,
+		dauthRepo: repo,
+		dauthConf: conf,
+		dauthService: dauthService,
 	}
 }
 
@@ -27,16 +29,16 @@ const (
 )
 
 func (h *RPCHandlers) RegisterOAuthRPCs(initializer runtime.Initializer, logger runtime.Logger) error {
-	if err := initializer.RegisterRpc(rpcRegisterOAuth, h.AuthorizationURLRPC); err != nil {
+	if err := initializer.RegisterRpc(rpcRegisterOAuth, h.DAuthAuthorizationURLRPC); err != nil {
 		logger.Error("register %s failed: %v", rpcRegisterOAuth, err)
 		return err
 	}
 
-	if err := initializer.RegisterRpc(rpcExchangeTokens, h.ExchangeCodeForTokensRPC); err != nil {
+	if err := initializer.RegisterRpc(rpcExchangeTokens, h.DAuthExchangeCodeForTokensRPC); err != nil {
 		logger.Error("register %s failed: %v", rpcExchangeTokens, err)
 		return err
 	}
-	if err := initializer.RegisterRpc(rpcGetOAuthToken, h.GetOAuthTokenRPC); err != nil {
+	if err := initializer.RegisterRpc(rpcGetOAuthToken, h.GetDAuthTokenRPC); err != nil {
 		logger.Error("register %s failed: %v", rpcGetOAuthToken, err)
 		return err
 	}

@@ -1,0 +1,5 @@
+﻿<Solution>
+  <Project Path="NakamaEditor.csproj" />
+  <Project Path="NakamaRuntime.csproj" />
+  <Project Path="Assembly-CSharp.csproj" />
+</Solution>
