@@ -13,7 +13,6 @@ type RPCHandlers struct {
 	dauthService dauth.DAuthService
 }
 
-// NewRPCHandlers constructs handlers with the minimal dependencies required.
 func NewRPCHandlers(repo dauth.DAuthRepository, conf *oauth2.Config, dauthService dauth.DAuthService) *RPCHandlers {
 	return &RPCHandlers{
 		dauthRepo: repo,
@@ -28,20 +27,20 @@ const (
 	rpcGetOAuthToken  = "oauth_get_token"
 )
 
-func (h *RPCHandlers) RegisterOAuthRPCs(initializer runtime.Initializer, logger runtime.Logger) error {
-	if err := initializer.RegisterRpc(rpcRegisterOAuth, h.DAuthAuthorizationURLRPC); err != nil {
-		logger.Error("register %s failed: %v", rpcRegisterOAuth, err)
-		return err
-	}
+func (h *RPCHandlers) RegisterOAuthRPCs(initializer runtime.Initializer, logger runtime.Logger) error {   // register rpcs here
+// 	if err := initializer.RegisterRpc(rpcRegisterOAuth, h.DAuthAuthorizationURLRPC); err != nil {
+// 		logger.Error("register %s failed: %v", rpcRegisterOAuth, err)
+// 		return err
+// 	}
 
-	if err := initializer.RegisterRpc(rpcExchangeTokens, h.DAuthExchangeCodeForTokensRPC); err != nil {
-		logger.Error("register %s failed: %v", rpcExchangeTokens, err)
-		return err
-	}
-	if err := initializer.RegisterRpc(rpcGetOAuthToken, h.GetDAuthTokenRPC); err != nil {
-		logger.Error("register %s failed: %v", rpcGetOAuthToken, err)
-		return err
-	}
+// 	if err := initializer.RegisterRpc(rpcExchangeTokens, h.DAuthExchangeCodeForTokensRPC); err != nil {
+// 		logger.Error("register %s failed: %v", rpcExchangeTokens, err)
+// 		return err
+// 	}
+// 	if err := initializer.RegisterRpc(rpcGetOAuthToken, h.GetDAuthTokenRPC); err != nil {
+// 		logger.Error("register %s failed: %v", rpcGetOAuthToken, err)
+// 		return err
+// 	}
 	return nil
 }
 
