@@ -58,7 +58,7 @@ tasks:
   stack:psql:
     desc: Open a psql shell into Postgres
     cmds:
-      - docker exec -it terrabound_db psql -U postgres -d nakama
+      - docker exec -it terrabound_db psql -U nakama -d nakama
 
   tidy:
     desc: Clean go.mod & go.sum

@@ -8,19 +8,22 @@
       "moby": false
     }
   },
-  "postCreateCommand": "sudo chown -R vscode /go/pkg/ && go install github.com/go-task/task/v3/cmd/task@latest && go install github.com/cespare/reflex@latest",
+  "postCreateCommand": "sudo chown -R vscode /go/pkg/ && go install github.com/go-task/task/v3/cmd/task@latest && go install github.com/cespare/reflex@latest && echo '✅ Dev environment ready! Run: task stack:up'",
+  "postStartCommand": "docker volume create terrabound_gomod >/dev/null 2>&1 || true && docker volume create terrabound_gobuild >/dev/null 2>&1 || true",
   "customizations": {
     "vscode": {
       "extensions": [
         "golang.go",
         "ms-azuretools.vscode-docker",
-        "task.vscode-task"
+        "task.vscode-task",
+        "EditorConfig.EditorConfig"
       ],
       "settings": {
         "go.toolsManagement.checkForUpdates": "local",
         "go.useLanguageServer": true,
         "go.gopath": "/go",
-        "go.goroot": "/usr/local/go"
+        "go.goroot": "/usr/local/go",
+        "terminal.integrated.defaultProfile.linux": "bash"
       }
     }
   },
@@ -46,5 +49,8 @@
   },
   "mounts": [
     "source=terrabound-go-modules,target=/go/pkg/mod,type=volume"
-  ]
+  ],
+  "containerEnv": {
+    "COMPOSE_PROJECT_NAME": "terrabound"
+  }
 }

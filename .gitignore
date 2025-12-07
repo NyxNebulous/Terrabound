@@ -26,9 +26,18 @@ unity/[Ll]ogs/
 unity/[Mm]emoryCaptures/
 unity/*.csproj
 unity/*.sln
+unity/*.slnx
 unity/*.user
 unity/*.pidb
 unity/*.userprefs
+unity/UserSettings/
+unity/mono_crash*.blob
+
+# Unity recovery/temp scenes
+unity/Assets/_Recovery/
+
+# Random screenshots (remove if you want to keep these)
+unity/Assets/Screenshot_*.png
 
 # Docker volumes
 volumes/

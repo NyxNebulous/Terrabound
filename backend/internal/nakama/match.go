@@ -19,15 +19,12 @@ type PlayerState struct {
 	Y      float32 `json:"y"`
 }
 
-// --- Entire match state ---
 type MatchState struct {
 	Players map[string]*PlayerState
 }
 
-// --- Server-authoritative movement match ---
 type MovementMatch struct{}
 
-// Called when match starts
 func (m *MovementMatch) MatchInit(
 	ctx context.Context,
 	logger runtime.Logger,
@@ -47,7 +44,6 @@ func (m *MovementMatch) MatchInit(
 	return state, tickRate, label
 }
 
-// Allow all players
 func (m *MovementMatch) MatchJoinAttempt(
 	ctx context.Context,
 	logger runtime.Logger,
@@ -62,7 +58,6 @@ func (m *MovementMatch) MatchJoinAttempt(
 	return state, true, ""
 }
 
-// Add player on join
 func (m *MovementMatch) MatchJoin(
 	ctx context.Context,
 	logger runtime.Logger,
@@ -88,7 +83,6 @@ func (m *MovementMatch) MatchJoin(
 	return s
 }
 
-// Remove player on leave
 func (m *MovementMatch) MatchLeave(
 	ctx context.Context,
 	logger runtime.Logger,
@@ -110,7 +104,6 @@ func (m *MovementMatch) MatchLeave(
 	return s
 }
 
-// GAMELOOP
 func (m *MovementMatch) MatchLoop(
 	ctx context.Context,
 	logger runtime.Logger,
@@ -139,7 +132,7 @@ func (m *MovementMatch) MatchLoop(
 	}
 
 	// 2. Broadcast updated state
-	stateJson, err := json.Marshal(s.Players) // map[user_id]PlayerState
+	stateJson, err := json.Marshal(s.Players)
 	if err != nil {
 		logger.Error("Failed to marshal match state: %v", err)
 		return s
@@ -150,7 +143,6 @@ func (m *MovementMatch) MatchLoop(
 	return s
 }
 
-// Handle signals (not used)
 func (m *MovementMatch) MatchSignal(
 	ctx context.Context,
 	logger runtime.Logger,
@@ -164,7 +156,6 @@ func (m *MovementMatch) MatchSignal(
 	return state, ""
 }
 
-// Terminate match
 func (m *MovementMatch) MatchTerminate(
 	ctx context.Context,
 	logger runtime.Logger,

@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   postgres:
     image: postgres:14-alpine
@@ -26,12 +24,15 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command: >
-      /nakama/nakama migrate up --config /nakama/data/local.yml &&
-      exec /nakama/nakama --config /nakama/data/local.yml
+    entrypoint:
+      - "/bin/sh"
+      - "-ecx"
+      - >
+        /nakama/nakama migrate up --database.address postgres://nakama:localdbpass@postgres:5432/nakama?sslmode=disable &&
+        exec /nakama/nakama --config /nakama/data/local.yml
     volumes:
       - ../backend/build/backend.so:/nakama/data/modules/backend.so:ro
-      - ${PWD}/config/local.yml:/nakama/data/local.yml:ro
+      - ./config/local.yml:/nakama/data/local.yml:ro
     environment:
       - NAKAMA_DATA_DIR=/nakama/data
     ports:

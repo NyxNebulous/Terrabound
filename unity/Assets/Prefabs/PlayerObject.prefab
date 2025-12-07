@@ -52,6 +52,8 @@ SpriteRenderer:
   m_RayTracingAccelStructBuildFlagsOverride: 0
   m_RayTracingAccelStructBuildFlags: 1
   m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -73,6 +75,7 @@ SpriteRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: -658656379
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -199,7 +202,6 @@ GameObject:
   m_Component:
   - component: {fileID: 3763815846015626887}
   - component: {fileID: 2253537256680371931}
-  - component: {fileID: -184054929632518952}
   m_Layer: 0
   m_Name: PlayerObject
   m_TagString: Untagged
@@ -236,22 +238,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9eb93e70387d8c14c85db2cd1a9221d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  playerName: Saketh
+  playerName: Aditya
   nameText: {fileID: 4347242328901931543}
---- !u!114 &-184054929632518952
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5984279027412328549}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 01b5f0b6b585e5f4786cdf371788feb5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  moveSpeed: 5
-  playerName: 
 --- !u!1 &6627716498180434530
 GameObject:
   m_ObjectHideFlags: 0
@@ -355,7 +343,6 @@ MonoBehaviour:
   m_VerticalAlignment: 512
   m_textAlignment: 65535
   m_characterSpacing: 0
-  m_characterHorizontalScale: 1
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
