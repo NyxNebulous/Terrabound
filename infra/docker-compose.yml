@@ -1,3 +1,5 @@
+version: "3.8"
+
 services:
   postgres:
     image: postgres:14-alpine
@@ -5,35 +7,18 @@ services:
     restart: unless-stopped
     environment:
       POSTGRES_DB: nakama
-      POSTGRES_PASSWORD: localdb
-      POSTGRES_USER: postgres
+      POSTGRES_USER: nakama
+      POSTGRES_PASSWORD: localdbpass
     ports:
       - "5432:5432"
     volumes:
       - terrabound_pgdata:/var/lib/postgresql/data
       - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "nakama"]
+      test: ["CMD", "pg_isready", "-U", "nakama", "-d", "nakama"]
       interval: 3s
       timeout: 3s
       retries: 10
-
-# remove these comments when implementing AI
-  # tf:
-  #   image: tensorflow/serving
-  #   container_name: template_tf
-  #   environment:
-  #     - MODEL_NAME=ttt
-  #   healthcheck:
-  #     test: ["CMD", "curl", "-f", "http://localhost:8501/"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
-  #   ports:
-  #     - "8501"
-  #   volumes:
-  #     - ./model:/models/ttt
-  #   restart: unless-stopped
 
   nakama:
     image: heroiclabs/nakama:3.34.1
@@ -41,15 +26,12 @@ services:
     depends_on:
       postgres:
         condition: service_healthy
-    command:
-      - "/bin/sh"
-      - "-ecx"
-      - >
-        /nakama/nakama migrate up --database.address postgres:localdb@postgres:5432/nakama?sslmode=disable &&
-        exec /nakama/nakama --config /nakama/data/local.yml --database.address postgres:localdb@postgres:5432/nakama?sslmode=disable
+    command: >
+      /nakama/nakama migrate up --config /nakama/data/local.yml &&
+      exec /nakama/nakama --config /nakama/data/local.yml
     volumes:
       - ../backend/build/backend.so:/nakama/data/modules/backend.so:ro
-      - ./config/local.yml:/nakama/data/local.yml:ro
+      - ${PWD}/config/local.yml:/nakama/data/local.yml:ro
     environment:
       - NAKAMA_DATA_DIR=/nakama/data
     ports:

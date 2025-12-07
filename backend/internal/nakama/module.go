@@ -3,29 +3,34 @@ package nakama
 import (
 	"context"
 	"database/sql"
-	"time"
+	"net/http"
 
 	"github.com/heroiclabs/nakama-common/runtime"
 )
 
-const (
-	rpcValidateOrder = "tb_order_validate"
-	matchName        = "tb_war_room"
-)
-
+// InitModule is the plugin entrypoint for Nakama
 func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, initializer runtime.Initializer) error {
-	start := time.Now()
+	logger.Info("Nakama REST API + Match module loaded")
 
-	// dauthRepo := dauth.NewSQLDAuthRepository(db)
-	// dauthConf := dauth.NewDAuthConfig()
-	// dauthService := dauth.NewDAuthService(dauthConf)
+	// Register simple HTTP endpoint
+	if err := initializer.RegisterHttp("/api/hi", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Write([]byte(`{"message":"hi from nakama"}`))
+	}, http.MethodGet); err != nil {
+		return err
+	}
 
-	// rpcHandlers := NewRPCHandlers(dauthRepo, dauthConf, *dauthService)
-
-	// if err := rpcHandlers.RegisterOAuthRPCs(initializer, logger); err != nil {
+	// Register the HiMatch handler for WebSockets
+	// if err := initializer.RegisterMatch("movement_match", func(
+	// 	ctx context.Context,
+	// 	logger runtime.Logger,
+	// 	db *sql.DB,
+	// 	nk runtime.NakamaModule,
+	// ) (runtime.Match, error) {
+	// 	return &MovementMatch{}, nil
+	// }); err != nil {
 	// 	return err
 	// }
 
-	logger.Info("Terrabound backend initialized in %dms", time.Since(start).Milliseconds())
 	return nil
 }

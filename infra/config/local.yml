@@ -1,17 +1,23 @@
-name: Terrabound
+name: "Terrabound"
+
 console:
   max_message_size_bytes: 409600
+
 logger:
-  level: DEBUG
+  level: "DEBUG"
+
 database:
-  address: postgres:localdb@postgres:5432/nakama?sslmode=disable
+  address: "postgres://nakama:localdbpass@postgres:5432/nakama?sslmode=disable"
+
 runtime:
+  path: "/nakama/data/modules"
   env:
-    TERRABOUND_ENV: local
-  entrypoint:
-    - backend.so
+    TERRABOUND_ENV: "local"
+  entrypoint: backend.so
+
 socket:
   max_message_size_bytes: 4096
   max_request_size_bytes: 131072
+
 session:
   token_expiry_sec: 7200
