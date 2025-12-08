@@ -1,80 +1,100 @@
 # Terrabound
 
-Multiplayer strategy game with authoritative server logic. Built with **Go + Nakama** (backend), **Unity + C#** (client), and **Docker + Postgres** (infrastructure).
+Multiplayer strategy game with authoritative server logic, built with **Go + Nakama**, **Unity + C#**, and **Docker + Postgres**.
+
+---
 
 ## Quick Start
 
 ```bash
-# 1. Open in VS Code Dev Container (recommended) or ensure Docker v24+ is installed
-# 2. Start everything
+# Using VS Code Dev Container (recommended)
+# 1. Open folder in VS Code → "Reopen in Container"
+# 2. Run:
 task stack:up
-
-# 3. Access services
-# Nakama Console: http://localhost:7351 (admin/password)
-# Nakama API:     http://localhost:7350
-# PostgreSQL:     localhost:5432
 ```
+
+**Services:**
+| Port | Service |
+|------|---------|
+| 7351 | Nakama Console (admin/password) |
+| 7350 | Nakama HTTP API |
+| 5432 | PostgreSQL |
+
+---
 
 ## Project Structure
 
 ```
-backend/           # Go plugin for Nakama
-├── cmd/module/    # Entrypoint
+backend/               # Go plugin for Nakama
+├── cmd/module/        # Entrypoint
 └── internal/
-    ├── game/      # Pure domain logic (testable, no Nakama deps)
-    ├── nakama/    # RPCs, matches, hooks
-    └── constants/ # Shared errors/constants
+    ├── game/          # Pure domain logic (testable)
+    ├── nakama/        # RPCs, matches, hooks
+    ├── config/        # Configuration helpers
+    ├── constants/     # Shared errors/constants
+    └── oauth/         # OAuth flows
 
-unity/             # Unity client
-└── Assets/        # Scripts, scenes, prefabs
+unity/                 # Unity client
+└── Assets/Scripts/    # Networking, GameLogic, UI
 
-infra/             # Docker Compose + configs
+infra/                 # Docker Compose + configs
 ├── docker-compose.yml
 ├── config/local.yml
 └── postgres/init.sql
 ```
 
+---
+
 ## Commands
 
 | Command | Description |
 |---------|-------------|
-| `task stack:up` | Build plugin & start Nakama + Postgres |
+| `task stack:up` | Build plugin & start services |
 | `task stack:down` | Stop all services |
 | `task stack:logs` | Tail Nakama logs |
-| `task backend:watch` | Hot-reload: rebuild + restart on `.go` changes |
+| `task backend:watch` | Hot-reload on `.go` changes |
 | `task backend:test` | Run unit tests |
+| `task tidy` | Run `go mod tidy` |
 
-> `stack:up` automatically builds the plugin — no need to run `backend:build` separately.
+> `stack:up` builds automatically—no need to run `backend:build` separately.
+
+---
 
 ## Architecture
 
-**Backend** separates concerns:
-- `internal/game/` — Deterministic game rules, unit-testable
-- `internal/nakama/` — Thin integration layer calling game logic
+### Backend
 
-**Unity** mirrors this pattern:
-- Keep networking isolated from gameplay/UI
-- Use Nakama .NET SDK compatible with server v3.34.1
+```
+backend/
+├── cmd/module/main.go     # Nakama entrypoint
+├── internal/game/         # Pure domain logic (no Nakama deps)
+└── internal/nakama/       # Thin integration layer
+```
 
-## Devcontainer
+- **`internal/game/`** — Deterministic rules, unit-testable with `go test`
+- **`internal/nakama/`** — RPCs and match handlers calling game logic
 
-The Dev Container provides a fully configured development environment with:
-- ✅ Go 1.25
-- ✅ Docker CLI (Docker-in-Docker)
-- ✅ Task runner + reflex (hot-reload)
-- ✅ VS Code extensions: Go, Docker, Task
-- ✅ Port forwarding for all services
+### Unity
 
-### Using the Dev Container
+```
+unity/Assets/Scripts/
+├── Networking/    # Nakama client wrapper
+├── GameLogic/     # Client-side prediction (mirrors backend)
+└── UI/            # Presentation layer
+```
 
-1. Install [Docker Desktop](https://www.docker.com/products/docker-desktop/) and [VS Code](https://code.visualstudio.com/)
-2. Install the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
-3. Open this repo in VS Code
-4. Click "Reopen in Container" when prompted (or `F1` → "Dev Containers: Reopen in Container")
-5. Wait for setup to complete (~2-3 minutes first time)
-6. Run `task stack:up` in the integrated terminal
+Keep networking isolated from gameplay/UI. Use Nakama SDK compatible with server v3.34.1.
 
-All `task ...` commands work inside the container without any additional setup on your host machine.
+---
+
+## Dev Container
+
+Pre-configured environment with Go 1.25, Docker CLI, Task, and reflex.
+
+1. Open in VS Code → **F1** → "Reopen in Container"
+2. Run `task stack:up`
+
+---
 
 ## Example RPC
 
@@ -83,3 +103,17 @@ curl -X POST "http://127.0.0.1:7350/v2/rpc/tb_order_validate?http_key=defaultkey
   -H "Content-Type: application/json" \
   -d '{"matchId":"debug","playerId":"user-1","action":"attack","target":"capital-1","units":5}'
 ```
+
+---
+
+## Prerequisites (Local Setup)
+
+Only needed if **not** using the Dev Container:
+
+| Tool | Version | Install |
+|------|---------|---------|
+| Docker | 24+ | [docker.com](https://docker.com) |
+| Go | 1.25+ | [go.dev](https://go.dev) |
+| Task | latest | `go install github.com/go-task/task/v3/cmd/task@latest` |
+| reflex | latest | `go install github.com/cespare/reflex@latest` |
+| Unity | 2021 LTS+ | [unity.com](https://unity.com) |
