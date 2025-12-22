@@ -18,6 +18,17 @@ func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 		return err
 	}
 
+	// Auth endpoints (no session/http_key required)
+	if err := initializer.RegisterHttp("/auth/init", HTTPAuthInitHandler(ctx, logger, nk), http.MethodPost); err != nil {
+		return err
+	}
+	if err := initializer.RegisterHttp("/auth/check", HTTPAuthCheckHandler(ctx, logger, nk), http.MethodPost); err != nil {
+		return err
+	}
+	if err := initializer.RegisterHttp("/auth/callback", CreateAuthCallbackHandler(ctx, logger, nk), http.MethodGet); err != nil {
+		return err
+	}
+
 	if err := initializer.RegisterMatch("movement_match", func(
 		ctx context.Context,
 		logger runtime.Logger,
@@ -31,6 +42,7 @@ func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 	}
 
 	logger.Info("✓ Registered 'movement_match' handler")
+	logger.Info("✓ Registered auth endpoints: /auth/init, /auth/check, /auth/callback")
 	logger.Info("=== Backend Ready - Waiting for Unity clients ===")
 
 	return nil

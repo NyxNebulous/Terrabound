@@ -33,6 +33,8 @@ services:
     volumes:
       - ../backend/build/backend.so:/nakama/data/modules/backend.so:ro
       - ./config/local.yml:/nakama/data/local.yml:ro
+    env_file:
+      - ../backend/internal/.env
     environment:
       - NAKAMA_DATA_DIR=/nakama/data
     ports:
