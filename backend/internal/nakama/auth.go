@@ -243,7 +243,7 @@ func handleDAuthCallback(ctx context.Context, code string) (customID, username, 
 		return "", "", "", fmt.Errorf("dauth userinfo failed: %w", err)
 	}
 
-	customID = fmt.Sprintf("dauth:%s", user.ID)
+	customID = fmt.Sprintf("dauth:%d", user.ID)
 	username = user.Name
 	if username == "" {
 		username = user.Email

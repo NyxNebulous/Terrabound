@@ -41,8 +41,12 @@ func InitModule(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runti
 		return err
 	}
 
-	logger.Info("✓ Registered 'movement_match' handler")
-	logger.Info("✓ Registered auth endpoints: /auth/init, /auth/check, /auth/callback")
+	if err := initializer.RegisterRpc("dynamic_match", func(ctx context.Context, logger runtime.Logger, db *sql.DB, nk runtime.NakamaModule, payload string) (string, error) {
+		return requestDynamicMatch(ctx, logger, db, nk, payload)
+	}); err != nil {
+		return err
+	}
+	
 	logger.Info("=== Backend Ready - Waiting for Unity clients ===")
 
 	return nil
