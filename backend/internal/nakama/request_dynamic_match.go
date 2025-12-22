@@ -57,30 +57,48 @@ func findCompatibleMatch(ctx context.Context, nk runtime.NakamaModule, elo int32
 	if err != nil {
 		return nil, nil, err
 	}
-	var mostAppropriateMatch *matchMetadata
-	var matchRecord *api.StorageObject
+	var bestMatch matchMetadata
+	var bestRecord *api.StorageObject
+	bestScore := math.MaxFloat64
+	hasBest := false
 	for _, rec := range list {
 		var meta matchMetadata
 		if err := json.Unmarshal([]byte(rec.Value), &meta); err != nil {
 			continue
 		}
+
+		// Storage key is the authoritative match id for this record.
+		meta.MatchId = rec.Key
+
+		// Defensive: storage can contain stale match IDs if authoritative matches ended
+		// without their corresponding records being removed.
+		if meta.MatchId == "" {
+			_ = nk.StorageDelete(ctx, []*runtime.StorageDelete{{Collection: matchesCollection, Key: rec.Key, UserID: ""}})
+			continue
+		}
+		match, err := nk.MatchGet(ctx, meta.MatchId)
+		if err != nil || match == nil {
+			_ = nk.StorageDelete(ctx, []*runtime.StorageDelete{{Collection: matchesCollection, Key: rec.Key, UserID: ""}})
+			continue
+		}
+
 		if meta.CurrentPlayers >= meta.MaxPlayers {
 			continue
 		}
-		if mostAppropriateMatch == nil {
-			mostAppropriateMatch = &meta
-			matchRecord = rec
-			continue
-		}
-		currentMid := float64(meta.MinElo+meta.MaxElo) / 2.0
-		bestMid := float64(mostAppropriateMatch.MinElo+mostAppropriateMatch.MaxElo) / 2.0
 
-		if math.Abs(float64(elo)-currentMid) < math.Abs(float64(elo)-bestMid) {
-			mostAppropriateMatch = &meta
-			matchRecord = rec
+		currentMid := float64(meta.MinElo+meta.MaxElo) / 2.0
+		score := math.Abs(float64(elo) - currentMid)
+		if !hasBest || score < bestScore {
+			bestScore = score
+			hasBest = true
+			bestMatch = meta
+			bestRecord = rec
 		}
 	}
-	return matchRecord, mostAppropriateMatch, nil
+	if !hasBest {
+		return nil, nil, nil
+	}
+	return bestRecord, &bestMatch, nil
 }
 
 // writeMatchRecord writes or updates a match record.
