@@ -45,3 +45,4 @@ volumes/
 .directory
 
 backend/.env
+backend/internal/.env
